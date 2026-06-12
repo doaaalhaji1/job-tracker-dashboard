@@ -1,5 +1,8 @@
+'use client'
+
+import { useState } from 'react'
 import { jobs } from '../../data/jobs'
-import { Job } from '../../types'
+import { Job, JobStatus } from '../../types'
 import Link from 'next/link'
 
 const statusColors: Record<string, string> = {
@@ -9,6 +12,8 @@ const statusColors: Record<string, string> = {
   Rejected: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
   Pending: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
 }
+
+const statuses: (JobStatus | 'All')[] = ['All', 'Applied', 'Interview', 'Offer', 'Rejected', 'Pending']
 
 function JobCard({ job }: { job: Job }) {
   return (
@@ -41,16 +46,61 @@ function JobCard({ job }: { job: Job }) {
 }
 
 export default function JobsPage() {
+  const [search, setSearch] = useState('')
+  const [activeStatus, setActiveStatus] = useState<JobStatus | 'All'>('All')
+
+  const filtered = jobs.filter((job) => {
+    const matchSearch =
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.company.toLowerCase().includes(search.toLowerCase())
+    const matchStatus = activeStatus === 'All' || job.status === activeStatus
+    return matchSearch && matchStatus
+  })
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
         My Applications
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
-        ))}
+
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search by title or company..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full mb-4 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      {/* Filter */}
+      <div className="flex gap-2 flex-wrap mb-6">
+    {statuses.map((status) => (
+  <button
+    key={status}
+onClick={() => {
+  console.log('clicked:', status)
+  setActiveStatus(status)
+}}    style={{
+      backgroundColor: activeStatus === status ? '#2563eb' : '',
+      color: activeStatus === status ? 'white' : '',
+    }}
+    className="px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+  >
+    {status}
+  </button>
+))}
       </div>
+
+      {/* Results */}
+      {filtered.length === 0 ? (
+        <p className="text-slate-500 text-center py-12">No jobs found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
