@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -9,8 +8,18 @@ import Sidebar from '../components/sidebar/Sidebar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Job Tracker Dashboard',
-  description: 'Track your job applications efficiently',
+  title: {
+    default: 'Job Tracker Dashboard',
+    template: '%s | Job Tracker',
+  },
+  description: 'Track and manage your job applications efficiently',
+  keywords: ['job tracker', 'job applications', 'career', 'dashboard'],
+  authors: [{ name: 'Doaa Al-Haji' }],
+  openGraph: {
+    title: 'Job Tracker Dashboard',
+    description: 'Track and manage your job applications efficiently',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({
